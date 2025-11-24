@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
   output   = "../lib/generated/prisma"
@@ -26,7 +23,7 @@ model User {
   id             String    @id @default(cuid())
   name           String?
   email          String?   @unique
-  emailVerified  DateTime? // Unused by you, but kept for NextAuth compatibility
+  emailVerified  DateTime?
   image          String?
 
   // UGA identity
@@ -39,7 +36,7 @@ model User {
   phoneVisible   Boolean   @default(true)
 
   // General meeting preferences (optional)
-  meetingPrefs   String?   // e.g. "In-person at MLC", "Zoom", etc.
+  meetingPrefs   String?
 
   // Global privacy preferences
   showGrades       Boolean  @default(true)
@@ -99,7 +96,11 @@ model VerificationToken {
 
 model Course {
   id          String        @id @default(cuid())
-  code        String        // "CSCI 1301"
+
+  // Split course code
+  prefix      String        // e.g. "CSCI"
+  number      String        // e.g. "1301" or "1107H"
+
   title       String
   description String?
 
@@ -108,7 +109,7 @@ model Course {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
-  @@unique([code])
+  @@unique([prefix, number])
 }
 
 model Enrollment {
@@ -119,11 +120,11 @@ model Enrollment {
   grade       String?  // "A", "B+", etc.
 
   // Tutoring flags
-  canTutor    Boolean  @default(false)  // is the user allowed to tutor this course?
-  showAsTutor Boolean  @default(false)  // is this user opting in to show as tutor?
+  canTutor    Boolean  @default(false)
+  showAsTutor Boolean  @default(false)
 
   // Per-course privacy
-  showGrade   Boolean  @default(true)   // allow showing grade for this course
+  showGrade   Boolean  @default(true)
 
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
@@ -134,13 +135,11 @@ model Enrollment {
   @@unique([userId, courseId])
 }
 
-// ========== Contact methods (multi-contact per user) ==========
-
 model ContactMethod {
   id          String   @id @default(cuid())
   userId      String
-  platform    String   // "Discord", "Twitter", "Instagram", etc.
-  identifier  String   // "user#1234", "@handle", etc.
+  platform    String
+  identifier  String
 
   isPreferred Boolean  @default(false)
   visible     Boolean  @default(true)

@@ -10,8 +10,7 @@ interface RouteParams {
 }
 
 // PATCH /api/admin/courses/:courseId
-// Body: partial { code?: string; title?: string; description?: string }
-// will type later.
+// Body: partial { prefix?: string; number?: string; title?: string; description?: string }
 export async function PATCH(req: NextRequest, { params }: RouteParams) {
   const session = await auth();
   if (!session || !session.user || session.user.role !== "ADMIN") {
@@ -19,13 +18,19 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
   }
 
   const { courseId } = await params;
-  
+
   try {
     const body = (await req.json().catch(() => null)) as
-      | { code?: string; title?: string; description?: string }
+      | { prefix?: string; number?: string; title?: string; description?: string }
       | null;
 
-    if (!body || (!body.code && !body.title && body.description === undefined)) {
+    if (
+      !body ||
+      (body.prefix === undefined &&
+        body.number === undefined &&
+        body.title === undefined &&
+        body.description === undefined)
+    ) {
       return NextResponse.json(
         { error: "Nothing to update" },
         { status: 400 },
@@ -33,18 +38,24 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
     }
 
     const data: {
-      code?: string;
+      prefix?: string;
+      number?: string;
       title?: string;
       description?: string | null;
     } = {};
 
-    if (body.code !== undefined) data.code = body.code.trim();
-    if (body.title !== undefined) data.title = body.title.trim();
+    if (body.prefix !== undefined) {
+      data.prefix = body.prefix.trim().toUpperCase();
+    }
+    if (body.number !== undefined) {
+      data.number = body.number.trim();
+    }
+    if (body.title !== undefined) {
+      data.title = body.title.trim();
+    }
     if (body.description !== undefined) {
       data.description = body.description?.trim() || null;
     }
-
-    console.log("Updating course", courseId, "with data", data);
 
     const updated = await prisma.course.update({
       where: { id: courseId },
@@ -54,10 +65,10 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ course: updated }, { status: 200 });
   } catch (error: any) {
     console.error(`[PATCH /api/admin/courses/${courseId}] error`, error);
-  
+
     if (error?.code === "P2002") {
       return NextResponse.json(
-        { error: "A course with this code already exists." },
+        { error: "A course with this prefix and number already exists." },
         { status: 409 },
       );
     }
@@ -83,7 +94,7 @@ export async function DELETE(_req: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const { courseId } = params;
+  const { courseId } = await params;
 
   try {
     await prisma.course.delete({

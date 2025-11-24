@@ -1,13 +1,14 @@
 // app/admin/courses/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import Header from "@/components/Header";
 
 type Course = {
   id: string;
-  code: string;
+  prefix: string;
+  number: string;
   title: string;
   description: string | null;
 };
@@ -23,7 +24,8 @@ export default function AdminCoursesPage() {
   const [creating, setCreating] = useState(false);
 
   const [newCourse, setNewCourse] = useState({
-    code: "",
+    prefix: "",
+    number: "",
     title: "",
     description: "",
   });
@@ -31,8 +33,7 @@ export default function AdminCoursesPage() {
   const isAdmin =
     status === "authenticated" && session?.user?.role === "ADMIN";
 
-  // Fetch courses
-  const fetchCourses = async () => {
+  const fetchCourses = useCallback( async () => {
     try {
       setLoading(true);
       setError(null);
@@ -56,17 +57,19 @@ export default function AdminCoursesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [search]);
 
   useEffect(() => {
     if (isAdmin) {
       fetchCourses();
     }
-  }, [isAdmin]);
+  }, [isAdmin, fetchCourses]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newCourse.code.trim() || !newCourse.title.trim()) return;
+    if (!newCourse.prefix.trim() || !newCourse.number.trim() || !newCourse.title.trim()) {
+      return;
+    }
 
     try {
       setCreating(true);
@@ -76,7 +79,8 @@ export default function AdminCoursesPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          code: newCourse.code,
+          prefix: newCourse.prefix,
+          number: newCourse.number,
           title: newCourse.title,
           description: newCourse.description || undefined,
         }),
@@ -87,7 +91,7 @@ export default function AdminCoursesPage() {
         throw new Error(data.error || "Failed to create course");
       }
 
-      setNewCourse({ code: "", title: "", description: "" });
+      setNewCourse({ prefix: "", number: "", title: "", description: "" });
       await fetchCourses();
     } catch (err: any) {
       setError(err.message || "Failed to create course");
@@ -101,13 +105,12 @@ export default function AdminCoursesPage() {
       setSavingId(course.id);
       setError(null);
 
-      const id = course.id;
-
-      const res = await fetch(`/api/admin/courses/${id}`, {
+      const res = await fetch(`/api/admin/courses/${course.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          code: course.code,
+          prefix: course.prefix,
+          number: course.number,
           title: course.title,
           description: course.description || "",
         }),
@@ -153,11 +156,7 @@ export default function AdminCoursesPage() {
   if (status === "loading") {
     return (
       <div className="min-h-screen flex flex-col bg-slate-50">
-        <Header
-          navLinks={[
-            { label: "Admin · Courses", href: "/admin/courses" },
-          ]}
-        />
+        <Header navLinks={[{ label: "Admin Course Page", href: "/admin/courses" }]} />
         <main className="flex-1 flex items-center justify-center">
           <p className="text-sm text-slate-600">Loading session…</p>
         </main>
@@ -168,11 +167,7 @@ export default function AdminCoursesPage() {
   if (!isAdmin) {
     return (
       <div className="min-h-screen flex flex-col bg-slate-50">
-        <Header
-          navLinks={[
-            { label: "Admin · Courses", href: "/admin/courses" },
-          ]}
-        />
+        <Header navLinks={[{ label: "Admin · Courses", href: "/admin/courses" }]} />
         <main className="flex-1 flex items-center justify-center">
           <p className="text-sm text-slate-600">
             You must be an admin to view this page.
@@ -217,7 +212,7 @@ export default function AdminCoursesPage() {
             >
               <input
                 type="text"
-                placeholder="Search by code or title…"
+                placeholder="Search by prefix, number, or title… (e.g., CSCI 1301)"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="flex-1 rounded-full border border-slate-300 text-slate-600 px-4 py-2 text-sm outline-none ring-uga-red/40 focus:border-uga-red focus:ring"
@@ -233,7 +228,7 @@ export default function AdminCoursesPage() {
             <button
               type="button"
               onClick={fetchCourses}
-              className="self-start rounded-full border border-slate-300 px-4 py-2 text-xs font-semibold text-slate-700 hover:border-uga-red hover:text-uga-red"
+              className="self-start rounded-full border border-slate-300 text-slate-600 px-4 py-2 text-xs font-semibold text-slate-700 hover:border-uga-red hover:text-uga-red"
             >
               Refresh
             </button>
@@ -246,14 +241,23 @@ export default function AdminCoursesPage() {
             </h2>
             <form
               onSubmit={handleCreate}
-              className="mt-3 grid gap-3 sm:grid-cols-[0.5fr,1.5fr,1fr]"
+              className="mt-3 grid gap-3 sm:grid-cols-[0.4fr,0.4fr,1.4fr]"
             >
               <input
                 type="text"
-                placeholder="Code (e.g., CSCI 1301)"
-                value={newCourse.code}
+                placeholder="Prefix (e.g., CSCI)"
+                value={newCourse.prefix}
                 onChange={(e) =>
-                  setNewCourse((c) => ({ ...c, code: e.target.value }))
+                  setNewCourse((c) => ({ ...c, prefix: e.target.value }))
+                }
+                className="rounded-md border border-slate-300 text-slate-600 px-3 py-2 text-xs uppercase outline-none ring-uga-red/40 focus:border-uga-red focus:ring"
+              />
+              <input
+                type="text"
+                placeholder="Number (e.g., 1301)"
+                value={newCourse.number}
+                onChange={(e) =>
+                  setNewCourse((c) => ({ ...c, number: e.target.value }))
                 }
                 className="rounded-md border border-slate-300 text-slate-600 px-3 py-2 text-xs outline-none ring-uga-red/40 focus:border-uga-red focus:ring"
               />
@@ -266,7 +270,8 @@ export default function AdminCoursesPage() {
                 }
                 className="rounded-md border border-slate-300 text-slate-600 px-3 py-2 text-xs outline-none ring-uga-red/40 focus:border-uga-red focus:ring"
               />
-              <div className="flex flex-col gap-2 sm:flex-row">
+
+              <div className="sm:col-span-3 mt-2 flex flex-col gap-2 sm:flex-row">
                 <input
                   type="text"
                   placeholder="Optional description"
@@ -282,7 +287,7 @@ export default function AdminCoursesPage() {
                 <button
                   type="submit"
                   disabled={creating}
-                  className="rounded-md bg-uga-red px-3 py-2 text-xs font-semibold text-white hover:bg-uga-red-dark disabled:opacity-70"
+                  className="rounded-md bg-uga-red px-4 py-2 text-xs font-semibold text-white hover:bg-uga-red-dark disabled:opacity-70"
                 >
                   {creating ? "Adding…" : "Add course"}
                 </button>
@@ -328,7 +333,6 @@ export default function AdminCoursesPage() {
   );
 }
 
-// Inline editable course row
 function CourseRow({
   course,
   saving,
@@ -348,7 +352,7 @@ function CourseRow({
   useEffect(() => {
     setDraft(course);
     setDirty(false);
-  }, [course.id, course.code, course.title, course.description]);
+  }, [course.id, course.prefix, course.number, course.title, course.description]);
 
   const handleChange = (field: keyof Course, value: string) => {
     setDraft((prev) => ({ ...prev, [field]: value }));
@@ -362,11 +366,16 @@ function CourseRow({
 
   return (
     <div className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+      <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
         <input
-          value={draft.code}
-          onChange={(e) => handleChange("code", e.target.value)}
-          className="w-full max-w-[7rem] rounded-md border border-slate-300 text-slate-600 px-2 py-1 outline-none ring-uga-red/40 focus:border-uga-red focus:ring"
+          value={draft.prefix}
+          onChange={(e) => handleChange("prefix", e.target.value.toUpperCase())}
+          className="w-full max-w-[5rem] rounded-md border border-slate-300 text-slate-600 px-2 py-1 uppercase outline-none ring-uga-red/40 focus:border-uga-red focus:ring"
+        />
+        <input
+          value={draft.number}
+          onChange={(e) => handleChange("number", e.target.value)}
+          className="w-full max-w-[5rem] rounded-md border border-slate-300 text-slate-600 px-2 py-1 outline-none ring-uga-red/40 focus:border-uga-red focus:ring"
         />
         <input
           value={draft.title}

@@ -1,15 +1,27 @@
 import Link from "next/link";
 import Header from "@/components/Header";
+import { auth } from "@/lib/auth";
 
-export default function Home() {
+export default async function Home() {
+
+  const session = await auth();
+  const isAdmin = session?.user?.role === "ADMIN";
+  
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
       <Header
-        navLinks={[
-          { label: "Browse courses", href: "/courses" },
-          { label: "How it works", href: "/#how-it-works" },
-          { label: "FAQ", href: "/#faq" },
-        ]}
+        navLinks={
+          isAdmin ? [
+            { label: "Admin", href: "/admin" },
+            { label: "Browse Courses", href: "/courses" },
+            { label: "FAQ", href: "/#faq" },
+       
+          ] : [
+            { label: "Profile", href: "/profile" },
+            { label: "Browse courses", href: "/courses" },
+            { label: "FAQ", href: "/#faq" },
+          ]
+        }
       />
 
       <main className="flex-1">
@@ -136,7 +148,7 @@ export default function Home() {
           <div className="mx-auto max-w-6xl px-4 py-10 lg:px-0 lg:py-14">
             <h2 className="text-xl font-semibold text-slate-900">Popular courses on StudentConnect</h2>
             <p className="mt-1 text-sm text-slate-600">
-              Example courses with active tutors. Later you can populate these from your backend.
+              Example courses with active tutors. 
             </p>
 
             <div className="mt-6 grid gap-4 md:grid-cols-3">

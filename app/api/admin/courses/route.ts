@@ -3,7 +3,61 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 
-// GET /api/admin/courses?q=CSCI&take=50
+// Utility: build where clause for search
+function buildWhereFromQuery(q?: string | null) {
+  if (!q) return {};
+
+  const trimmed = q.trim();
+  if (!trimmed) return {};
+
+  // If user types "CSCI 1301", split on whitespace
+  const [prefixPart, numberPart] = trimmed.split(/\s+/, 2);
+
+  if (numberPart) {
+    return {
+      AND: [
+        {
+          prefix: {
+            contains: prefixPart,
+            mode: "insensitive",
+          },
+        },
+        {
+          number: {
+            contains: numberPart,
+            mode: "insensitive",
+          },
+        },
+      ],
+    };
+  }
+
+  // Single token search: try prefix, number, or title
+  return {
+    OR: [
+      {
+        prefix: {
+          contains: trimmed,
+          mode: "insensitive",
+        },
+      },
+      {
+        number: {
+          contains: trimmed,
+          mode: "insensitive",
+        },
+      },
+      {
+        title: {
+          contains: trimmed,
+          mode: "insensitive",
+        },
+      },
+    ],
+  };
+}
+
+// GET /api/admin/courses?q=&take=
 export async function GET(req: NextRequest) {
   const session = await auth();
   if (!session || !session.user || session.user.role !== "ADMIN") {
@@ -12,22 +66,18 @@ export async function GET(req: NextRequest) {
 
   try {
     const { searchParams } = new URL(req.url);
-    const q = searchParams.get("q")?.trim();
+    const q = searchParams.get("q");
     const takeParam = searchParams.get("take");
     const take = takeParam ? Math.min(Number(takeParam) || 50, 100) : 50;
 
-    const where = q
-      ? {
-          OR: [
-            { code: { contains: q, mode: "insensitive" } },
-            { title: { contains: q, mode: "insensitive" } },
-          ],
-        }
-      : {};
+    const where = buildWhereFromQuery(q);
 
     const courses = await prisma.course.findMany({
       where,
-      orderBy: { code: "asc" },
+      orderBy: [
+        { prefix: "asc" },
+        { number: "asc" },
+      ],
       take,
     });
 
@@ -42,7 +92,7 @@ export async function GET(req: NextRequest) {
 }
 
 // POST /api/admin/courses
-// Body: { code: string; title: string; description?: string }
+// Body: { prefix: string; number: string; title: string; description?: string }
 export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session || !session.user || session.user.role !== "ADMIN") {
@@ -51,19 +101,20 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = (await req.json().catch(() => null)) as
-      | { code?: string; title?: string; description?: string }
+      | { prefix?: string; number?: string; title?: string; description?: string }
       | null;
 
-    if (!body || !body.code || !body.title) {
+    if (!body || !body.prefix || !body.number || !body.title) {
       return NextResponse.json(
-        { error: "Missing required fields: code, title" },
+        { error: "Missing required fields: prefix, number, title" },
         { status: 400 },
       );
     }
 
     const course = await prisma.course.create({
       data: {
-        code: body.code.trim(),
+        prefix: body.prefix.trim().toUpperCase(),
+        number: body.number.trim(),
         title: body.title.trim(),
         description: body.description?.trim() || null,
       },
@@ -75,7 +126,7 @@ export async function POST(req: NextRequest) {
 
     if (error?.code === "P2002") {
       return NextResponse.json(
-        { error: "A course with this code already exists." },
+        { error: "A course with this prefix and number already exists." },
         { status: 409 },
       );
     }

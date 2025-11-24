@@ -12,3 +12,133 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+// ========== NextAuth core models ==========
+
+model User {
+  id             String    @id @default(cuid())
+  name           String?
+  email          String?   @unique
+  emailVerified  DateTime? // Unused by you, but kept for NextAuth compatibility
+  image          String?
+
+  // UGA identity
+  ugaId          String?   @unique
+  major          String?
+  year           String?   // "Freshman", "Sophomore", etc.
+  bio            String?
+
+  phoneNumber    String?
+  phoneVisible   Boolean   @default(true)
+
+  // General meeting preferences (optional)
+  meetingPrefs   String?   // e.g. "In-person at MLC", "Zoom", etc.
+
+  // Global privacy preferences
+  showGrades       Boolean  @default(true)
+  showCourses      Boolean  @default(true)
+  showTutorProfile Boolean  @default(true)
+
+  // Relations
+  enrollments     Enrollment[]
+  accounts        Account[]
+  sessions        Session[]
+  contactMethods  ContactMethod[]
+
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+}
+
+model Account {
+  id                 String   @id @default(cuid())
+  userId             String
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type               String
+  provider           String
+  providerAccountId  String
+
+  refresh_token      String?
+  access_token       String?
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?
+  session_state      String?
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expires      DateTime
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ========== App-specific models ==========
+
+model Course {
+  id          String        @id @default(cuid())
+  code        String        // "CSCI 1301"
+  title       String
+  description String?
+
+  enrollments Enrollment[]
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@unique([code])
+}
+
+model Enrollment {
+  id          String   @id @default(cuid())
+  userId      String
+  courseId    String
+
+  grade       String?  // "A", "B+", etc.
+
+  // Tutoring flags
+  canTutor    Boolean  @default(false)  // is the user allowed to tutor this course?
+  showAsTutor Boolean  @default(false)  // is this user opting in to show as tutor?
+
+  // Per-course privacy
+  showGrade   Boolean  @default(true)   // allow showing grade for this course
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, courseId])
+}
+
+// ========== Contact methods (multi-contact per user) ==========
+
+model ContactMethod {
+  id          String   @id @default(cuid())
+  userId      String
+  platform    String   // "Discord", "Twitter", "Instagram", etc.
+  identifier  String   // "user#1234", "@handle", etc.
+
+  isPreferred Boolean  @default(false)
+  visible     Boolean  @default(true)
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+}

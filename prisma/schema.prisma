@@ -13,6 +13,13 @@ datasource db {
   provider = "postgresql"
 }
 
+// ========== App-wide enums ==========
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
 // ========== NextAuth core models ==========
 
 model User {
@@ -38,6 +45,9 @@ model User {
   showGrades       Boolean  @default(true)
   showCourses      Boolean  @default(true)
   showTutorProfile Boolean  @default(true)
+
+  // Role / permissions
+  role           Role      @default(STUDENT)
 
   // Relations
   enrollments     Enrollment[]

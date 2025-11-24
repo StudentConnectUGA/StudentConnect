@@ -3,13 +3,23 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --uga-red: #ba0c2f;
+  --uga-red-dark: #930825;
+  --uga-black: #000000;
+  --uga-gray-50: #f9fafb;
 }
 
+/* Map CSS variables into Tailwind's theme system */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  
+  --color-uga-red: var(--uga-red);
+  --color-uga-red-dark: var(--uga-red-dark);
+  --color-uga-black: var(--uga-black);
+  --color-uga-gray-50: var(--uga-gray-50);
 }
 
 @media (prefers-color-scheme: dark) {

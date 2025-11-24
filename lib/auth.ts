@@ -1,9 +1,8 @@
 // lib/auth.ts
-import NextAuth, {NextAuthConfig, User} from "next-auth";
+import NextAuth, {type NextAuthConfig} from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
-import { AdapterSession } from "next-auth/adapters";
 
 export const authOptions: NextAuthConfig = {
   adapter: PrismaAdapter(prisma),
@@ -39,6 +38,7 @@ export const authOptions: NextAuthConfig = {
       if (session.user) {
        if (session.user) {
       session.user.id = user.id;
+       session.user.role = user.role;
 
       session.user.ugaId = user.ugaId;
       session.user.major = user.major;

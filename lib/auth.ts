@@ -1,8 +1,9 @@
 // lib/auth.ts
-import NextAuth, {NextAuthConfig} from "next-auth";
+import NextAuth, {NextAuthConfig, User} from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
+import { AdapterSession } from "next-auth/adapters";
 
 export const authOptions: NextAuthConfig = {
   adapter: PrismaAdapter(prisma),
@@ -36,9 +37,23 @@ export const authOptions: NextAuthConfig = {
 
     async session({ session, user }) {
       if (session.user) {
-        // extend session with the DB user id
+       if (session.user) {
+      session.user.id = user.id;
 
-        session.user.id = user.id;
+      session.user.ugaId = user.ugaId;
+      session.user.major = user.major;
+      session.user.year = user.year;
+      session.user.bio = user.bio;
+
+      session.user.phoneNumber = user.phoneNumber;
+      session.user.phoneVisible = user.phoneVisible;
+
+      session.user.meetingPrefs = user.meetingPrefs;
+
+      session.user.showGrades = user.showGrades;
+      session.user.showCourses = user.showCourses;
+      session.user.showTutorProfile = user.showTutorProfile;
+    }
       }
       return session;
     },

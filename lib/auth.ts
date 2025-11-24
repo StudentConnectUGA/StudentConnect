@@ -1,10 +1,10 @@
 // lib/auth.ts
-import NextAuth, { type NextAuthOptions } from "next-auth";
+import NextAuth, {NextAuthConfig} from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 
-export const authOptions: NextAuthOptions = {
+export const authOptions: NextAuthConfig = {
   adapter: PrismaAdapter(prisma),
 
   session: {
@@ -37,7 +37,7 @@ export const authOptions: NextAuthOptions = {
     async session({ session, user }) {
       if (session.user) {
         // extend session with the DB user id
-        // @ts-expect-error – we are extending the default type
+
         session.user.id = user.id;
       }
       return session;
@@ -45,5 +45,6 @@ export const authOptions: NextAuthOptions = {
   },
 };
 
-const handler = NextAuth(authOptions);
-export { handler as authHandler };
+export const { auth, handlers, signIn, signOut } = NextAuth(authOptions);
+
+console.log("Handlers:", handlers);

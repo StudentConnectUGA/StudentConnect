@@ -18,8 +18,8 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const { courseId } = params;
-
+  const { courseId } = await params;
+  
   try {
     const body = (await req.json().catch(() => null)) as
       | { code?: string; title?: string; description?: string }
@@ -43,6 +43,8 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
     if (body.description !== undefined) {
       data.description = body.description?.trim() || null;
     }
+
+    console.log("Updating course", courseId, "with data", data);
 
     const updated = await prisma.course.update({
       where: { id: courseId },

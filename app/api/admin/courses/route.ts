@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
 // POST /api/admin/courses
 // Body: { code: string; title: string; description?: string }
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session || !session.user || session.user.role !== "ADMIN") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }

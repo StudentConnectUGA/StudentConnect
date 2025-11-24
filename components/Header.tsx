@@ -42,7 +42,7 @@ export default function Header({ navLinks = [] }: HeaderProps) {
           </span>
         </Link>
 
-        {/* Nav links (dynamic) */}
+        {/* Nav links  */}
         <nav className="hidden items-center gap-6 text-sm md:flex">
           {navLinks.map((link) => (
             <Link

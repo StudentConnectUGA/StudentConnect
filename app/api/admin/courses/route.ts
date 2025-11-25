@@ -8,12 +8,12 @@ import { buildWhereFromQuery } from "@/lib/api-util";
 // GET /api/admin/courses?q=&take=
 export async function GET(req: NextRequest) {
   const session = await auth();
-  if (!session || !session.user) {
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    return NextResponse.json({ error: "Forbidden" }, { status:  session.user.role !== "ADMIN" ? 403 : 401 });
-  }
+if (!session?.user) {
+  return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+}
+if (session.user.role !== "ADMIN") {
+  return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+}
 
   try {
     const { searchParams } = new URL(req.url);
@@ -46,10 +46,12 @@ export async function GET(req: NextRequest) {
 // Body: { prefix: string; number: string; title: string; description?: string }
 export async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session || !session.user || session.user.role !== "ADMIN") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-
+if (!session?.user) {
+  return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+}
+if (session.user.role !== "ADMIN") {
+  return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+}
   try {
     const body = (await req.json().catch(() => null)) as
       | { prefix?: string; number?: string; title?: string; description?: string }

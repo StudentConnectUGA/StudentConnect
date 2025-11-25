@@ -9,10 +9,10 @@ import { auth } from "@/lib/auth";
 // GET /api/courses?q=&take=
 export async function GET(req: NextRequest) {
 
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  // const session = await auth();
+  // if (!session?.user?.id) {
+  //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  // }
 
 
   try {

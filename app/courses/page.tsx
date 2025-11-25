@@ -74,9 +74,9 @@ export default function CoursesSearchPage() {
     );
   }
 
-  if (!session?.user?.id) {
-    return <SignedOut message={"Please sign in to view courses."} />;
-  }
+  // if (!session?.user?.id) {
+  //   return <SignedOut message={"Please sign in to view courses."} />;
+  // }
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">

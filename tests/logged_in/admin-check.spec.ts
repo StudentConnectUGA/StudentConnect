@@ -11,7 +11,7 @@ const TUTOR_USER_ID = 'cmicqgukn00003lmewz8uc4iw';
 
 
 
-// Helper to verify 401 responses on protected routes
+// Helper to verify responses on protected routes
 async function expectStatus(
   request: APIRequestContext,
   path: string,

@@ -5,7 +5,9 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import Header from "@/components/Header";
 import AddCourseSection from "@/components/dashboard/courses/AddCourseSection";
-import {EnrollmentsSection} from "@/components/dashboard/courses/EnrollmentSection";
+import { EnrollmentsSection } from "@/components/dashboard/courses/EnrollmentSection";
+import { redirect } from "next/navigation";
+import { SignedOut } from "@/components/SignedOut";
 
 type Course = {
   id: string;
@@ -30,7 +32,6 @@ export default function DashboardCoursesPage() {
   const [savingId, setSavingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-
 
   const isAuthenticated = status === "authenticated";
 
@@ -60,8 +61,6 @@ export default function DashboardCoursesPage() {
       fetchEnrollments();
     }
   }, [isAuthenticated]);
-
- 
 
   const handleUpdateEnrollment = async (enrollment: Enrollment) => {
     try {
@@ -117,37 +116,11 @@ export default function DashboardCoursesPage() {
   };
 
   if (status === "loading") {
-    return (
-      <div className="min-h-screen flex flex-col bg-slate-50">
-        <Header
-          navLinks={[
-            { label: "My courses", href: "/dashboard/courses" },
-            { label: "Home", href: "/" },
-          ]}
-        />
-        <main className="flex-1 flex items-center justify-center">
-          <p className="text-sm text-slate-600">Loading session…</p>
-        </main>
-      </div>
-    );
+    return <SignedOut message={"Loading user session, please wait..."} />;
   }
 
   if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen flex flex-col bg-slate-50">
-        <Header
-          navLinks={[
-            { label: "My courses", href: "/dashboard/courses" },
-            { label: "Home", href: "/" },
-          ]}
-        />
-        <main className="flex-1 flex items-center justify-center">
-          <p className="text-sm text-slate-600">
-            Please sign in to manage your course listings.
-          </p>
-        </main>
-      </div>
-    );
+    return <SignedOut message={"Please sign in to manage your course listings"} />;
   }
 
   return (
@@ -161,19 +134,12 @@ export default function DashboardCoursesPage() {
 
       <main className="flex-1">
         <div className="mx-auto max-w-5xl px-4 py-8 lg:px-0 lg:py-10">
-          <h1 className="text-xl font-semibold text-slate-900">
-            Completed courses & tutor listings
-          </h1>
+          <h1 className="text-xl font-semibold text-slate-900">Completed courses & tutor listings</h1>
           <p className="mt-1 text-sm text-slate-600">
-            Add courses you&apos;ve completed, record your grade, and choose
-            which courses you&apos;d like to be listed as a peer tutor for.
+            Add courses you&apos;ve completed, record your grade, and choose which courses you&apos;d like to be listed as a peer tutor for.
           </p>
 
-          {error && (
-            <div className="mt-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
-              {error}
-            </div>
-          )}
+          {error && <div className="mt-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">{error}</div>}
 
           {/* Add course form */}
           <AddCourseSection onCreated={fetchEnrollments} />

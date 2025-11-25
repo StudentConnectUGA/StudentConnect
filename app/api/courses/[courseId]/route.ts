@@ -9,7 +9,7 @@ interface RouteParams {
 }
 
 export async function GET(req: NextRequest, { params }: RouteParams) {
-  const { courseId } = params;
+  const { courseId } = await params;
 
   try {
     const course = await prisma.course.findUnique({

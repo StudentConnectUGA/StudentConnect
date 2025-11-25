@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Header from "@/components/Header";
 import CourseResultsGrid from "@/components/CourseResultsGrid";
+import { useSession } from "next-auth/react";
+import { SignedOut } from "@/components/SignedOut";
 
 type Course = {
   id: string;
@@ -16,6 +18,7 @@ type Course = {
 
 export default function CoursesSearchPage() {
   const searchParams = useSearchParams();
+  const { data: session, status } = useSession();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [results, setResults] = useState<Course[]>([]);
@@ -64,11 +67,22 @@ export default function CoursesSearchPage() {
     void performSearch(q);
   }, [searchParams]);
 
+  console.log("Session status:", status);
+  if (status === "loading") {
+    return (
+      <SignedOut message={"Loading user session, please wait..."} />
+    );
+  }
+
+  if (!session?.user?.id) {
+    return <SignedOut message={"Please sign in to view courses."} />;
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
       <Header
         navLinks={[
-          { label: "Find courses", href: "/courses" },
+          { label: "Browse Courses", href: "/courses" },
           { label: "My Courses", href: "/dashboard/courses" },
           { label: "Home", href: "/" },
         ]}

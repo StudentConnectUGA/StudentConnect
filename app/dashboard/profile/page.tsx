@@ -4,6 +4,7 @@
 import { useSession } from "next-auth/react";
 import Header from "@/components/Header";
 import ProfileContent from "@/components/dashboard/profile/ProfileContent";
+import { SignedOut } from "@/components/SignedOut";
 
 export default function ProfilePage() {
   const { status } = useSession();
@@ -28,20 +29,7 @@ export default function ProfilePage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex flex-col bg-slate-50">
-        <Header
-          navLinks={[
-            { label: "My courses", href: "/dashboard/courses" },
-            { label: "Profile", href: "/dashboard/profile" },
-            { label: "Home", href: "/" },
-          ]}
-        />
-        <main className="flex-1 flex items-center justify-center">
-          <p className="text-sm text-slate-600">
-            Please sign in to view and edit your profile.
-          </p>
-        </main>
-      </div>
+      <SignedOut  message={"Please sign in to view your profile"} />
     );
   }
 

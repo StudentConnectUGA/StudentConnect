@@ -12,6 +12,7 @@
     "@auth/prisma-adapter": "^2.11.1",
     "@prisma/adapter-pg": "^7.0.0",
     "@prisma/client": "^7.0.0",
+    "@prisma/extension-accelerate": "^3.0.0",
     "@types/pg": "^8.15.6",
     "dotenv": "^17.2.3",
     "next": "16.0.3",
@@ -22,6 +23,7 @@
     "react-dom": "19.2.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.56.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^24.10.1",
     "@types/react": "^19",

@@ -21,11 +21,11 @@ export default async function Home() {
        
           ] : loggedIn ? [
             { label: "Profile", href: "/profile" },
-            { label: "Browse courses", href: "/courses" },
+            { label: "Browse Courses", href: "/courses" },
             { label: "FAQ", href: "/#faq" },
           ] : [
             { label: "Sign in", href: "/api/auth/signin" },
-            { label: "Browse courses", href: "/courses" },
+            // { label: "Browse Courses", href: "/courses" },
             { label: "FAQ", href: "/#faq" },
           ]
         }

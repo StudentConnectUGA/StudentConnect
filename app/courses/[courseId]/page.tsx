@@ -1,51 +1,132 @@
 // app/courses/[courseId]/page.tsx
-import { notFound } from "next/navigation";
-import Header from "@/components/Header";
-import { prisma } from "@/lib/prisma";
+"use client";
 
-type CoursePageProps = {
-  params: {
-    courseId: string;
-  };
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import Header from "@/components/Header";
+import TutorCard from "@/components/tutors/TutorCard";
+import { SignedOut } from "@/components/SignedOut";
+
+type TutorUser = {
+  id: string;
+  name: string | null;
+  major: string | null;
+  year: string | null;
+  bio: string | null;
+  showTutorProfile: boolean;
+  showGrades: boolean;
 };
 
-export default async function CoursePage({ params }: CoursePageProps) {
-  const { courseId } = await params;
+type TutorEnrollment = {
+  id: string;
+  grade: string | null;
+  showGrade: boolean;
+  canTutor: boolean;
+  showAsTutor: boolean;
+  user: TutorUser;
+};
 
-  const course = await prisma.course.findUnique({
-    where: { id: courseId },
-    include: {
-      enrollments: {
-        where: {
-          canTutor: true,
-          showAsTutor: true,
-        },
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              major: true,
-              year: true,
-              bio: true,
-              showTutorProfile: true,
-              showGrades: true,
-            },
-          },
-        },
-      },
-    },
-  });
+type CourseWithTutors = {
+  id: string;
+  prefix: string;
+  number: string;
+  title: string;
+  enrollments: TutorEnrollment[];
+};
 
-  if (!course) {
-    notFound();
+type Status = "loading" | "ok" | "unauthorized" | "not-found" | "error";
+
+const Shell: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <div className="min-h-screen flex flex-col bg-slate-50">
+    <Header
+      navLinks={[
+        { label: "Find courses", href: "/courses" },
+        { label: "My courses", href: "/dashboard/courses" },
+        { label: "Home", href: "/" },
+      ]}
+    />
+    <main className="flex-1">
+      <div className="mx-auto max-w-5xl px-4 py-8 lg:px-0 lg:py-10">{children}</div>
+    </main>
+  </div>
+);
+
+export default function CoursePage() {
+  const params = useParams<{ courseId: string }>();
+  const courseId = params.courseId;
+
+  const [course, setCourse] = useState<CourseWithTutors | null>(null);
+  const [status, setStatus] = useState<Status>("loading");
+
+  useEffect(() => {
+    if (!courseId) return;
+
+    const fetchCourse = async () => {
+      try {
+        setStatus("loading");
+        const res = await fetch(`/api/courses/${courseId}/tutors`);
+
+        if (res.status === 401) {
+          setStatus("unauthorized");
+          return;
+        }
+
+        if (res.status === 404) {
+          setStatus("not-found");
+          return;
+        }
+
+        if (!res.ok) {
+          setStatus("error");
+          return;
+        }
+
+        const data = (await res.json()) as CourseWithTutors;
+        setCourse(data);
+        setStatus("ok");
+      } catch (err) {
+        console.error("Failed to fetch course tutors:", err);
+        setStatus("error");
+      }
+    };
+
+    fetchCourse();
+  }, [courseId]);
+
+  // Loading
+  if (status === "loading") {
+    return (
+      <Shell>
+        <p className="text-xs text-slate-600">Loading course tutors…</p>
+      </Shell>
+    );
   }
 
-  const tutorEnrollments = course.enrollments.filter(
-    (enrollment) => enrollment.user && enrollment.user.showTutorProfile,
-  );
+  // Not logged in
+  if (status === "unauthorized") {
+    return <SignedOut message={"Please sign in to view tutors for this course."} />;
+  }
 
-  const tutorsCount = tutorEnrollments.length;
+  // Course not found
+  if (status === "not-found") {
+    return (
+      <Shell>
+        <p className="text-xs text-slate-600">Course not found.</p>
+      </Shell>
+    );
+  }
+
+  // Generic error
+  if (status === "error" || !course) {
+    return (
+      <Shell>
+        <p className="text-xs text-red-600">Something went wrong while loading this course.</p>
+      </Shell>
+    );
+  }
+
+  // Normal rendered state
+  const tutorsCount = course.enrollments.length;
   const courseCode = `${course.prefix} ${course.number}`;
 
   return (
@@ -66,13 +147,8 @@ export default async function CoursePage({ params }: CoursePageProps) {
               <span className="inline-flex items-center rounded-full bg-white px-3 py-1 text-[11px] font-semibold text-slate-800 shadow-sm">
                 {courseCode}
               </span>
-              <h1 className="mt-2 text-lg font-semibold text-slate-900">
-                {course.title}
-              </h1>
-              <p className="mt-1 text-xs text-slate-600">
-                Peer tutors who have completed this course and opted in to be
-                listed.
-              </p>
+              <h1 className="mt-2 text-lg font-semibold text-slate-900">{course.title}</h1>
+              <p className="mt-1 text-xs text-slate-600">Peer tutors who have completed this course and opted in to be listed.</p>
             </div>
 
             <div className="flex flex-col items-start gap-2 text-xs sm:items-end">
@@ -86,54 +162,13 @@ export default async function CoursePage({ params }: CoursePageProps) {
           <section className="mt-8">
             {tutorsCount === 0 ? (
               <p className="text-xs text-slate-600">
-                No tutors are currently listed for this course. Check back
-                later—students can opt in to tutor after completing the class.
+                No tutors are currently listed for this course. Check back later—students can opt in to tutor after completing the class.
               </p>
             ) : (
               <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
-                {tutorEnrollments.map((enrollment) => {
-                  const user = enrollment.user!;
-                  const displayGrade =
-                    enrollment.showGrade && user.showGrades && enrollment.grade;
-
-                  return (
-                    <div
-                      key={enrollment.id}
-                      className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-uga-red/60 hover:shadow-sm"
-                    >
-                      <div>
-                        <p className="text-xs font-semibold text-slate-500">
-                          {user.name ?? "Unnamed student"}
-                        </p>
-                        <p className="mt-1 text-[11px] text-slate-600">
-                          {[user.major, user.year].filter(Boolean).join(" • ")}
-                        </p>
-
-                        {displayGrade && (
-                          <span className="mt-2 inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
-                            Grade: {enrollment.grade}
-                          </span>
-                        )}
-
-                        {user.bio && (
-                          <p className="mt-3 text-xs text-slate-700 line-clamp-3">
-                            {user.bio}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="mt-4 flex items-center justify-between text-[11px]">
-                        <span className="text-slate-500">
-                          Typically available by appointment.
-                        </span>
-                        {/* Future: link to dedicated tutor profile or contact flow */}
-                        <span className="font-medium text-uga-red">
-                          View profile
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
+                {course.enrollments.map((enrollment) => (
+                  <TutorCard key={enrollment.id} enrollment={enrollment} courseCode={courseCode} />
+                ))}
               </div>
             )}
           </section>

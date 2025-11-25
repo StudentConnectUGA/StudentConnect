@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-  ],
+, "app/api/courses/[courseId]/tutors/route"  ],
   "exclude": ["node_modules"]
 }

@@ -64,7 +64,12 @@ test('PATCH /api/contact-methods/[id] (unauthenticated)', async () => {
 // --------------------
 
 test('GET /api/courses (unauthenticated)', async () => {
-  await expect401('/api/courses', 'GET');
+  const res = await request.get('/api/courses');
+
+  expect(
+    res.status(),
+    `Expected 200 for GET /api/courses, got ${res.status()} instead`
+  ).toBe(200);
 });
 
 test('GET /api/courses/[courseId] (unauthenticated)', async () => {

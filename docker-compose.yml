@@ -1,13 +1,11 @@
-version: "3.9"
-
 services:
   playwright:
     image: mcr.microsoft.com/playwright:v1.56.1-jammy
     container_name: playwright-tests
-    network_mode: "host"              # so 127.0.0.1:3000 hits your host Next app
+    network_mode: "host"              # so 127.0.0.1:3000 hits the host Next app
     working_dir: /app
     volumes:
-      - .:/app                        # your project
+      - .:/app                        # the project
       - /tmp/.X11-unix:/tmp/.X11-unix # X11 socket from host
     environment:
       - CI=true

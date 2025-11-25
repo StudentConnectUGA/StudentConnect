@@ -1,10 +1,13 @@
 import Link from "next/link";
 import Header from "@/components/Header";
 import { auth } from "@/lib/auth";
+import CourseResultsGrid from "@/components/CourseResultsGrid";
+import { PopularCourses } from "@/components/landing/PopularCourses";
 
 export default async function Home() {
 
   const session = await auth();
+  const loggedIn = !!session?.user;
   const isAdmin = session?.user?.role === "ADMIN";
   
   return (
@@ -12,12 +15,16 @@ export default async function Home() {
       <Header
         navLinks={
           isAdmin ? [
-            { label: "Admin", href: "/admin" },
+            { label: "Admin", href: "/admin/courses" },
             { label: "Browse Courses", href: "/courses" },
             { label: "FAQ", href: "/#faq" },
        
-          ] : [
+          ] : loggedIn ? [
             { label: "Profile", href: "/profile" },
+            { label: "Browse courses", href: "/courses" },
+            { label: "FAQ", href: "/#faq" },
+          ] : [
+            { label: "Sign in", href: "/api/auth/signin" },
             { label: "Browse courses", href: "/courses" },
             { label: "FAQ", href: "/#faq" },
           ]
@@ -52,7 +59,7 @@ export default async function Home() {
                 </Link>
 
                 <Link
-                  href="#courses"
+                  href="/courses"
                   className="inline-flex items-center justify-center rounded-full border border-slate-300 px-5 py-2 text-sm font-semibold text-slate-800 hover:border-uga-red hover:text-uga-red"
                 >
                   Browse courses
@@ -144,37 +151,7 @@ export default async function Home() {
         </section>
 
         {/* TODO: change this to be pulling from our data. As of right now, static layout. Perhaps a caurousel? */}
-        <section id="courses" className="bg-uga-gray-50">
-          <div className="mx-auto max-w-6xl px-4 py-10 lg:px-0 lg:py-14">
-            <h2 className="text-xl font-semibold text-slate-900">Popular courses on StudentConnect</h2>
-            <p className="mt-1 text-sm text-slate-600">
-              Example courses with active tutors. 
-            </p>
-
-            <div className="mt-6 grid gap-4 md:grid-cols-3">
-              {[
-                { code: "MATH 2250", name: "Calculus I", tutors: 7 },
-                { code: "CSCI 1301", name: "Intro to Programming", tutors: 5 },
-                { code: "BIOL 1107", name: "Principles of Biology I", tutors: 4 },
-              ].map((course) => (
-                <div key={course.code} className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-4">
-                  <div>
-                    <p className="text-xs font-semibold text-slate-500">{course.code}</p>
-                    <h3 className="mt-1 text-sm font-semibold text-slate-900">{course.name}</h3>
-                  </div>
-
-                  <div className="mt-3 flex items-center justify-between text-xs">
-                    <span className="rounded-full bg-red-50 px-3 py-1 font-semibold text-uga-red">{course.tutors} tutors available</span>
-
-                    <Link href="/courses" className="font-medium text-slate-700 hover:text-uga-red">
-                      View tutors 
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+      <PopularCourses />
 
         {/* privacy statement */}
         <section id="faq" className="bg-white border-t border-slate-100">

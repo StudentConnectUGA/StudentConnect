@@ -2,60 +2,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { buildWhereFromQuery } from "@/lib/api-util";
 
-// Utility: build where clause for search
-function buildWhereFromQuery(q?: string | null) {
-  if (!q) return {};
-
-  const trimmed = q.trim();
-  if (!trimmed) return {};
-
-  // If user types "CSCI 1301", split on whitespace
-  const [prefixPart, numberPart] = trimmed.split(/\s+/, 2);
-
-  if (numberPart) {
-    return {
-      AND: [
-        {
-          prefix: {
-            contains: prefixPart,
-            mode: "insensitive",
-          },
-        },
-        {
-          number: {
-            contains: numberPart,
-            mode: "insensitive",
-          },
-        },
-      ],
-    };
-  }
-
-  // Single token search: try prefix, number, or title
-  return {
-    OR: [
-      {
-        prefix: {
-          contains: trimmed,
-          mode: "insensitive",
-        },
-      },
-      {
-        number: {
-          contains: trimmed,
-          mode: "insensitive",
-        },
-      },
-      {
-        title: {
-          contains: trimmed,
-          mode: "insensitive",
-        },
-      },
-    ],
-  };
-}
 
 // GET /api/admin/courses?q=&take=
 export async function GET(req: NextRequest) {

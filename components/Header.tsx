@@ -90,7 +90,7 @@ export default function Header({ navLinks = [] }: HeaderProps) {
                 `}
               >
                 <Link
-                  href="/account"
+                  href="/dashboard/profile"
                   className="block px-3 py-1.5 hover:bg-slate-50"
                 >
                   Edit profile

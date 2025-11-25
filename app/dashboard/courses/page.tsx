@@ -31,15 +31,6 @@ export default function DashboardCoursesPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // New enrollment state
-  const [searchTerm, setSearchTerm] = useState("");
-  const [searchResults, setSearchResults] = useState<Course[]>([]);
-  const [searchLoading, setSearchLoading] = useState(false);
-  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
-  const [newGrade, setNewGrade] = useState("");
-  const [newCanTutor, setNewCanTutor] = useState(false);
-  const [newShowAsTutor, setNewShowAsTutor] = useState(false);
-  const [creating, setCreating] = useState(false);
 
   const isAuthenticated = status === "authenticated";
 

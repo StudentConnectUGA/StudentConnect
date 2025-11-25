@@ -19,7 +19,6 @@ export type Enrollment = {
   course: Course;
 };
 
-
 export function EnrollmentRow({
   enrollment,
   saving,
@@ -39,12 +38,9 @@ export function EnrollmentRow({
   useEffect(() => {
     setDraft(enrollment);
     setDirty(false);
-  }, [enrollment.id, enrollment.grade, enrollment.canTutor, enrollment.showAsTutor, enrollment.showGrade]);
+  }, [enrollment, enrollment.id, enrollment.grade, enrollment.canTutor, enrollment.showAsTutor, enrollment.showGrade]);
 
-  const update = <K extends keyof Enrollment>(
-    field: K,
-    value: Enrollment[K],
-  ) => {
+  const update = <K extends keyof Enrollment>(field: K, value: Enrollment[K]) => {
     setDraft((prev) => ({ ...prev, [field]: value }));
     setDirty(true);
   };
@@ -60,17 +56,13 @@ export function EnrollmentRow({
     <div className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs sm:flex-row sm:items-center sm:justify-between">
       <div className="flex flex-1 flex-col gap-2">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-full bg-white px-3 py-1 text-[11px] font-semibold text-slate-800 shadow-sm">
-            {fullCode}
-          </span>
+          <span className="rounded-full bg-white px-3 py-1 text-[11px] font-semibold text-slate-800 shadow-sm">{fullCode}</span>
           <span className="text-slate-700">{draft.course.title}</span>
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
           <div className="flex items-center gap-2">
-            <label className="text-[11px] text-slate-600">
-              Grade (optional)
-            </label>
+            <label className="text-[11px] text-slate-600">Grade (optional)</label>
             <input
               type="text"
               value={draft.grade ?? ""}
@@ -82,35 +74,26 @@ export function EnrollmentRow({
           <label className="inline-flex items-center gap-2 text-[11px] text-slate-700">
             <input
               type="checkbox"
-              checked={draft.canTutor}
+              checked={draft.showGrade}
               onChange={(e) => {
-                const canTutor = e.target.checked;
-                update("canTutor", canTutor);
-                if (!canTutor) {
-                  update("showAsTutor", false);
+                const show = e.target.checked;
+                update("showGrade", show);
+                if (!show) {
+                  update("showAsTutor", false); // ⬅ force uncheck
                 }
               }}
             />
-            I can tutor this course
+            Allow others to see my grade
           </label>
 
           <label className="inline-flex items-center gap-2 text-[11px] text-slate-700">
             <input
               type="checkbox"
-              checked={draft.showAsTutor && draft.canTutor}
-              disabled={!draft.canTutor}
+              checked={draft.showAsTutor && draft.canTutor && draft.showGrade}
+              disabled={!draft.canTutor || !draft.showGrade} // ⬅ disable if grade isn't visible
               onChange={(e) => update("showAsTutor", e.target.checked)}
             />
             List me as a tutor
-          </label>
-
-          <label className="inline-flex items-center gap-2 text-[11px] text-slate-700">
-            <input
-              type="checkbox"
-              checked={draft.showGrade}
-              onChange={(e) => update("showGrade", e.target.checked)}
-            />
-            Allow others to see my grade
           </label>
         </div>
       </div>

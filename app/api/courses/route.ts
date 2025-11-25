@@ -1,42 +1,9 @@
 // app/api/courses/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { buildWhereFromQuery } from "@/lib/api-util";
 
-// Same search logic as admin, but public and read-only
-// TODO: merge both into utility function
-function buildWhereFromQuery(q: string) {
-  const trimmed = q.trim();
-  if (!trimmed) return {};
 
-  const [prefixPart, numberPart] = trimmed.split(/\s+/, 2);
-
-  if (numberPart) {
-    return {
-      AND: [
-        {
-          prefix: {
-            contains: prefixPart,
-            mode: "insensitive",
-          },
-        },
-        {
-          number: {
-            contains: numberPart,
-            mode: "insensitive",
-          },
-        },
-      ],
-    };
-  }
-
-  return {
-    OR: [
-      { prefix: { contains: trimmed, mode: "insensitive" } },
-      { number: { contains: trimmed, mode: "insensitive" } },
-      { title: { contains: trimmed, mode: "insensitive" } },
-    ],
-  };
-}
 
 // GET /api/courses?q=&take=
 export async function GET(req: NextRequest) {
@@ -53,9 +20,28 @@ export async function GET(req: NextRequest) {
       where,
       orderBy: [{ prefix: "asc" }, { number: "asc" }],
       take,
+      include: {
+        enrollments: {
+          where: {
+            canTutor: true,
+            showAsTutor: true,
+          },
+          select: { id: true },
+        },
+      },
     });
+    console.log("Found courses:", courses.length);
 
-    return NextResponse.json({ courses }, { status: 200 });
+    // Strip enrollments and expose a derived availableTutors count
+    const payload = courses.map((course) => ({
+      id: course.id,
+      prefix: course.prefix,
+      number: course.number,
+      title: course.title,
+      availableTutors: course.enrollments.length,
+    }));
+
+    return NextResponse.json({ courses: payload }, { status: 200 });
   } catch (error) {
     console.error("[GET /api/courses] error", error);
     return NextResponse.json(

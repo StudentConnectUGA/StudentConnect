@@ -1,7 +1,7 @@
 // components/dashboard/AddCourseSection.tsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Course = {
   id: string;
@@ -22,9 +22,9 @@ export default function AddCourseSection({ onCreated }: { onCreated: () => Promi
   const [error, setError] = useState<string | null>(null);
 
  // Search courses
-  const handleSearchCourses = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchTerm.trim()) return;
+  const handleSearchCourses = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    // if (!searchTerm.trim()) return;
 
     try {
       setSearchLoading(true);
@@ -89,6 +89,12 @@ export default function AddCourseSection({ onCreated }: { onCreated: () => Promi
       setCreating(false);
     }
   };
+
+  // populate search results on mount
+  useEffect(() => {
+    void handleSearchCourses();
+  }, []);
+
   return (
           <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
             <h2 className="text-sm font-semibold text-slate-900">

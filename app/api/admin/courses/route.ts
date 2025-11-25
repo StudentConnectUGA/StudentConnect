@@ -8,8 +8,11 @@ import { buildWhereFromQuery } from "@/lib/api-util";
 // GET /api/admin/courses?q=&take=
 export async function GET(req: NextRequest) {
   const session = await auth();
-  if (!session || !session.user || session.user.role !== "ADMIN") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  if (!session || !session.user) {
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    return NextResponse.json({ error: "Forbidden" }, { status:  session.user.role !== "ADMIN" ? 403 : 401 });
   }
 
   try {

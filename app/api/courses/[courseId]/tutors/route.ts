@@ -10,6 +10,10 @@ type RouteParams = {
 };
 
 export async function GET(_req: Request, { params }: RouteParams) {
+
+
+  const { courseId } = await params;
+
   const session = await auth();
 
   if (!session?.user?.id) {
@@ -18,8 +22,6 @@ export async function GET(_req: Request, { params }: RouteParams) {
       { status: 401 }
     );
   }
-
-  const { courseId } = await params;
 
   const course = await prisma.course.findUnique({
     where: { id: courseId },

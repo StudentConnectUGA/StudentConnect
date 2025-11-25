@@ -1,4 +1,5 @@
 import { defineConfig } from '@playwright/test';
+import path from 'path';
 
 export default defineConfig({
   testDir: './tests',
@@ -7,14 +8,16 @@ export default defineConfig({
 
   use: {
     baseURL: 'http://localhost:3000',
-    headless: true,
+    headless: false,
+    storageState: path.join(__dirname, 'tests/playwright/.auth/user.json'),
     trace: 'on-first-retry',
   },
 
-  webServer: {
-    command: 'npm run dev',
-    port: 3000,
-    timeout: 120_000,
-    reuseExistingServer: !process.env.CI,
-  },
+  
+  // webServer: {
+  //   command: 'npm run dev',
+  //   port: 3000,
+  //   timeout: 120_000,
+  //   reuseExistingServer: !process.env.CI,
+  // },
 });

@@ -13,8 +13,11 @@ interface RouteParams {
 // Body: partial { prefix?: string; number?: string; title?: string; description?: string }
 export async function PATCH(req: NextRequest, { params }: RouteParams) {
   const session = await auth();
-  if (!session || !session.user || session.user.role !== "ADMIN") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  if (!session || !session.user) {
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    return NextResponse.json({ error: "Forbidden" }, { status:  session.user.role !== "ADMIN" ? 403 : 401 });
   }
 
   const { courseId } = await params;
@@ -90,8 +93,11 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
 // DELETE /api/admin/courses/:courseId
 export async function DELETE(_req: NextRequest, { params }: RouteParams) {
   const session = await auth();
-  if (!session || !session.user || session.user.role !== "ADMIN") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  if (!session || !session.user) {
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    return NextResponse.json({ error: "Forbidden" }, { status: session.user.role !== "ADMIN" ? 403 : 401 });
   }
 
   const { courseId } = await params;

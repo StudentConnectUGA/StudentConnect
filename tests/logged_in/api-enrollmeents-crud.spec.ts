@@ -1,7 +1,7 @@
 // tests/api-enrollments-crud.spec.ts
 import { test, expect } from '@playwright/test';
 
-const TEST_COURSE_ID = 'cmie29u5g0004qkme8f6thqda';
+const TEST_COURSE_ID = 'cmiew380k0006ffme8e76ljmf';
 
 test.describe('Enrollment CRUD Flow', () => {
   test('create -> update -> duplicate -> delete -> recreate', async ({ request }) => {

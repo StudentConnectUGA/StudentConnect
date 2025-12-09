@@ -1,6 +1,7 @@
 // lib/prisma.ts
 import { PrismaClient } from "@/lib/generated/prisma/client";
 import { PrismaPg } from '@prisma/adapter-pg'
+import { withAccelerate } from "@prisma/extension-accelerate"
 
 const connectionString = `${process.env.DATABASE_URL}`
 

@@ -7,7 +7,7 @@ test('login and save storage state', async ({ page }) => {
 
   await page.goto('http://127.0.0.1:3000/');
 
-  // adjust selector for your NextAuth button
+  // adjust selector for  NextAuth button
   await page.getByRole('button', { name: /sign in/i }).click();
 
   await page.waitForURL('http://127.0.0.1:3000/api/auth/signin**');
@@ -15,7 +15,7 @@ test('login and save storage state', async ({ page }) => {
   await page.getByRole('button', { name: 'Sign in with Google' }).click();
   console.log('Please complete the OAuth login in the opened browser window...');
 
-  // manually complete OAuth; wait until you're back on your app
+  // manually complete OAuth; wait until you're back on  app
 
   await new Promise((resolve) => setTimeout(resolve, 45000));
   console.log('Assuming login completed, saving storage state...');

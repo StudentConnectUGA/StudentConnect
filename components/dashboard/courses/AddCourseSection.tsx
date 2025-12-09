@@ -102,7 +102,7 @@ export default function AddCourseSection({ onCreated }: { onCreated: () => Promi
             </h2>
             <p className="mt-1 text-xs text-slate-600">
               Search by prefix, number, or title (e.g., <span className="font-mono">CSCI 1301</span> or{" "}
-              <span className="font-mono">Calculus</span>), then add your grade and tutoring status.
+              <span className="font-mono">Calculus</span>), then add  grade and tutoring status.
             </p>
 
             <form

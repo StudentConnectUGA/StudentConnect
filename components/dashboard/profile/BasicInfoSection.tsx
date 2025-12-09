@@ -71,7 +71,7 @@ export default function BasicInfoSection({
           value={profile.bio ?? ""}
           onChange={(e) => onChange("bio", e.target.value || null)}
           rows={3}
-          placeholder="Tell other students a bit about your experience, interests, or courses you enjoy."
+          placeholder="Tell other students a bit about  experience, interests, or courses you enjoy."
           className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-xs text-slate-600 outline-none ring-uga-red/40 focus:border-uga-red focus:ring"
         />
       </div>

@@ -19,7 +19,7 @@ export default function PrivacySection({
         Privacy settings
       </h2>
       <p className="mt-1 text-[11px] text-slate-500">
-        Control how your information appears across StudentConnect.
+        Control how  information appears across StudentConnect.
       </p>
 
       <div className="mt-3 space-y-2">

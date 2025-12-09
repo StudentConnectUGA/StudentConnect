@@ -22,7 +22,7 @@ export function EnrollmentsSection({
           <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-semibold text-slate-900">
-                Your course listings ({enrollments.length})
+                 course listings ({enrollments.length})
               </h2>
               {loading && (
                 <span className="text-[11px] text-slate-500">
@@ -34,7 +34,7 @@ export function EnrollmentsSection({
             {enrollments.length === 0 && !loading ? (
               <p className="mt-3 text-xs text-slate-600">
                 You haven&apos;t added any completed courses yet. Use the
-                form above to add your first one.
+                form above to add  first one.
               </p>
             ) : (
               <div className="mt-4 space-y-3">

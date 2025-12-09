@@ -29,7 +29,7 @@ export default function ProfilePage() {
 
   if (!isAuthenticated) {
     return (
-      <SignedOut  message={"Please sign in to view your profile"} />
+      <SignedOut  message={"Please sign in to view  profile"} />
     );
   }
 

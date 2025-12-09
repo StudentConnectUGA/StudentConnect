@@ -92,7 +92,7 @@ export default function DashboardCoursesPage() {
   };
 
   const handleDeleteEnrollment = async (id: string) => {
-    if (!confirm("Remove this course from your completed list?")) return;
+    if (!confirm("Remove this course from  completed list?")) return;
 
     try {
       setDeletingId(id);
@@ -120,7 +120,7 @@ export default function DashboardCoursesPage() {
   }
 
   if (!isAuthenticated) {
-    return <SignedOut message={"Please sign in to manage your course listings"} />;
+    return <SignedOut message={"Please sign in to manage  course listings"} />;
   }
 
   return (
@@ -136,7 +136,7 @@ export default function DashboardCoursesPage() {
         <div className="mx-auto max-w-5xl px-4 py-8 lg:px-0 lg:py-10">
           <h1 className="text-xl font-semibold text-slate-900">Completed courses & tutor listings</h1>
           <p className="mt-1 text-sm text-slate-600">
-            Add courses you&apos;ve completed, record your grade, and choose which courses you&apos;d like to be listed as a peer tutor for.
+            Add courses you&apos;ve completed, record  grade, and choose which courses you&apos;d like to be listed as a peer tutor for.
           </p>
 
           {error && <div className="mt-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">{error}</div>}

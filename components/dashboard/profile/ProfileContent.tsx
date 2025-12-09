@@ -94,9 +94,9 @@ export default function ProfileContent() {
 
   return (
     <>
-      <h1 className="text-xl font-semibold text-slate-900">Your profile</h1>
+      <h1 className="text-xl font-semibold text-slate-900"> profile</h1>
       <p className="mt-1 text-sm text-slate-600">
-        Update your basic info, contact options, and privacy preferences.
+        Update  basic info, contact options, and privacy preferences.
       </p>
 
       {error && (

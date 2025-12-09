@@ -130,7 +130,7 @@ export default function ContactMethodsSection() {
         Contact methods
       </h2>
       <p className="mt-1 text-[11px] text-slate-500">
-        Add ways other students can reach you. Your preferred method is
+        Add ways other students can reach you.  preferred method is
         highlighted when you&apos;re listed as a tutor.
       </p>
 
@@ -226,7 +226,7 @@ export default function ContactMethodsSection() {
             <label className="text-[11px] text-slate-600">Identifier</label>
             <input
               type="text"
-              placeholder="e.g., @yourHandle, (555) 123-4567"
+              placeholder="e.g., @Handle, (555) 123-4567"
               value={newIdentifier}
               onChange={(e) => setNewIdentifier(e.target.value)}
               className="rounded-md border border-slate-300 px-3 py-2 text-xs text-slate-600 outline-none ring-uga-red/40 focus:border-uga-red focus:ring"

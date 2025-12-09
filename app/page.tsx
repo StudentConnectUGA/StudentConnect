@@ -75,7 +75,7 @@ export default async function Home() {
                 <h2 className="mb-3 text-sm font-semibold text-slate-900">How StudentConnect works</h2>
                 <ol className="space-y-2 text-xs text-slate-700">
                   <li>
-                    <span className="font-semibold text-uga-red">1.</span> Sign in with your UGA account.
+                    <span className="font-semibold text-uga-red">1.</span> Sign in with  UGA account.
                   </li>
                   <li>
                     <span className="font-semibold text-uga-red">2.</span> Add completed courses and grades.
@@ -157,7 +157,7 @@ export default async function Home() {
         <section id="faq" className="bg-white border-t border-slate-100">
           <div className="mx-auto max-w-6xl px-4 py-8 lg:px-0 lg:py-10">
             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-6">
-              <h2 className="text-sm font-semibold text-slate-900">Your privacy, your choice.</h2>
+              <h2 className="text-sm font-semibold text-slate-900"> privacy,  choice.</h2>
               <p className="mt-1 text-xs text-slate-600">
                 You control which courses, grades, and tutor details are visible to others. Only authenticated UGA students can see tutor
                 listings and edit their own profiles.

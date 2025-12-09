@@ -310,7 +310,7 @@ export default function AdminCoursesPage() {
 
             {courses.length === 0 && !loading ? (
               <p className="mt-4 text-xs text-slate-600">
-                No courses found. Try adjusting your search or add a new course above.
+                No courses found. Try adjusting  search or add a new course above.
               </p>
             ) : (
               <div className="mt-4 space-y-3">

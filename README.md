@@ -1,36 +1,114 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Student Connect
 
-## Getting Started
+Student Connect is a Next.js web platform that enables students to discover and connect with peer tutors based on completed coursework and subject mastery. The platform is optimized for deployment on **Vercel** and follows a modern full-stack architecture using **Next.js App Router**, **NextAuth**, and **PostgreSQL (Prisma ORM).**
 
-First, run the development server:
+---
+
+## 🚀 Getting Started
+
+### 1️⃣ Install Dependencies
+
+```bash
+npm install
+# or
+yarn install
+```
+
+### 2️⃣ Configure Environment Variables
+
+Create both `.env` and `.env.local` at the project root:
+
+#### `.env`
+
+> **Used by Prisma** (database connection)
+
+```env
+DATABASE_URL="postgresql://postgres@localhost:5432/student_connect_dev"
+```
+
+#### `.env.local`
+
+> **Used by Next.js**
+
+```env
+GOOGLE_CLIENT_ID=130066559799-3s84mj......os32anldou.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=GOCSPX-1......ORKLSp3LMK7K
+
+NEXTAUTH_SECRET="7a2Qc8f9F2k....UC++sWG1kEsI="
+NEXTAUTH_URL=http://localhost:3000
+```
+
+Run Prisma setup steps:
+
+```bash
+npx prisma db push
+```
+
+(Optional) View your database:
+
+```bash
+npx prisma studio
+```
+
+---
+
+## 🧩 Development Server
+
+Start the app locally:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with  browser to see the result.
+Open your browser:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+👉 [http://localhost:3000](http://localhost:3000)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building--application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Any changes under `app/` will hot-reload automatically.
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🐳 Docker Support (for Testing)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+If you plan to run authenticated Playwright tests, ensure:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) -  feedback and contributions are welcome!
+* Docker is installed:
 
-## Deploy on Vercel
+  * [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)
+* Docker Compose is installed:
 
-The easiest way to deploy  Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+  * [https://docs.docker.com/compose/install/](https://docs.docker.com/compose/install/)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building--application/deploying) for more details.
+Then run:
+
+```bash
+docker compose up -d
+```
+
+This will start required dependencies (e.g., test database).
+
+---
+
+## 🧪 Testing
+
+This project uses **Playwright** for full E2E + API integration testing.
+
+Also, the tests must run with the dev server active (see above). It does not start the server automatically.
+
+> Authenticated tests require a one-time manual Google Sign-In to create a Playwright session state.
+
+Run the entire test suite:
+
+```bash
+./run-tests.sh
+```
+
+Force re-authentication (in case of session expiration):
+
+Just delete the generated authentication state file at `playwright/.auth/user.json` and re-run:
+
+```bash
+./run-tests.sh
+```
+
+---

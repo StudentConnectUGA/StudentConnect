@@ -1,7 +1,19 @@
 import { test } from '@playwright/test';
 import path from 'path';
+import fs from 'fs';
+
+const storageStatePath = path.join(
+  __dirname,
+  'playwright/.auth/user.json'
+);
 
 test('login and save storage state', async ({ page }) => {
+
+  test.skip(
+    fs.existsSync(storageStatePath) && !process.env.FORCE_AUTH_SETUP,
+    'Auth storage state already exists, skipping login.'
+  );
+
   test.setTimeout(5 * 60 * 1000); // 5 minutes
 
 
@@ -20,6 +32,6 @@ test('login and save storage state', async ({ page }) => {
   await new Promise((resolve) => setTimeout(resolve, 45000));
   console.log('Assuming login completed, saving storage state...');
   await page.context().storageState({
-    path: path.join(__dirname, 'playwright/.auth/user.json'),
+    path: storageStatePath,
   });
 });
